@@ -199,22 +199,22 @@
     </div>
 
     <div class="slider-group">
-      <label><span>Side <span style="color:#a78bfa">b</span> (adjacent)</span> <span class="val" id="valB" style="color:#a78bfa">200</span></label>
-      <input type="range" id="sliderB" min="60" max="300" value="200" step="1">
+      <label><span>Side <span style="color:#a78bfa">b</span> (adjacent)</span> <span class="val" id="valB" style="color:#a78bfa">20</span></label>
+      <input type="range" id="sliderB" min="1" max="30" value="20" step="0.5">
     </div>
 
     <div class="slider-group">
-      <label><span>Side <span style="color:#60a5fa">a</span> (opposite)</span> <span class="val" id="valA" style="color:#60a5fa">150</span></label>
-      <input type="range" id="sliderA" min="20" max="350" value="150" step="1">
+      <label><span>Side <span style="color:#60a5fa">a</span> (opposite)</span> <span class="val" id="valA" style="color:#60a5fa">15</span></label>
+      <input type="range" id="sliderA" min="1" max="30" value="15" step="0.5">
     </div>
 
     <div>
       <h2>Presets</h2>
       <div class="preset-buttons">
-        <button class="preset-btn" onclick="setPreset(40,200,150)">2 Triangles</button>
-        <button class="preset-btn" onclick="setPreset(40,200,129)">1 (Right △)</button>
-        <button class="preset-btn" onclick="setPreset(35,200,240)">1 (a ≥ b)</button>
-        <button class="preset-btn" onclick="setPreset(50,200,90)">0 Triangles</button>
+        <button class="preset-btn" onclick="setPreset(40,20,15)">2 Triangles</button>
+        <button class="preset-btn" onclick="setPreset(40,20,12.9)">1 (Right △)</button>
+        <button class="preset-btn" onclick="setPreset(35,20,24)">1 (a ≥ b)</button>
+        <button class="preset-btn" onclick="setPreset(50,20,9)">0 Triangles</button>
       </div>
     </div>
 
@@ -265,17 +265,16 @@ function update() {
   valA.textContent = a;
 
   const h = b * Math.sin(A);
-  const scale = 1.0;
 
-  // Determine case
+  // Determine case (tighter thresholds for small values)
   let caseType, caseLabel;
-  if (a < h - 0.5) {
+  if (a < h - 0.05) {
     caseType = 'zero';
     caseLabel = '0 TRIANGLES';
-  } else if (Math.abs(a - h) < 1) {
+  } else if (Math.abs(a - h) < 0.15) {
     caseType = 'one-right';
     caseLabel = '1 TRIANGLE (right)';
-  } else if (a >= b - 0.5) {
+  } else if (a >= b - 0.05) {
     caseType = 'one-big';
     caseLabel = '1 TRIANGLE';
   } else {
@@ -327,7 +326,7 @@ function draw(A, a, b, h, caseType) {
   // Coordinate system: vertex A at bottom-left area
   const originX = 80;
   const originY = H - 60;
-  const sc = Math.min(1.4, 320 / Math.max(a, b)); // scale to fit
+  const sc = Math.min(18, 320 / Math.max(a, b)); // scale to fit canvas
 
   const Ax = originX;
   const Ay = originY;
