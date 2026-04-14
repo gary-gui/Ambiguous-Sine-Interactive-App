@@ -5,7 +5,7 @@ An interactive visualization that demonstrates when the Side-Side-Angle (SSA) co
 
 ## Live Demo
 
-👉 **[Open the app](https://YOUR_USERNAME.github.io/ambiguous-case-interactive/)** *(update this link after setup)*
+👉 **[Open the app]((https://gary-gui.github.io/Ambiguous-Sine-Interactive-App/))**
 
 ## Features
 
