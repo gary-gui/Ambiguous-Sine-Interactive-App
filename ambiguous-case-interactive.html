@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ambiguous Case of Sine Law — Interactive</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle { color: #94a3b8; font-size: 0.95rem; margin-bottom: 20px; text-align: center; }
+
+  .main-layout {
+    display: flex;
+    gap: 24px;
+    width: 100%;
+    max-width: 1100px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  /* Canvas area */
+  .canvas-wrap {
+    flex: 1 1 600px;
+    max-width: 700px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    padding: 20px;
+    position: relative;
+  }
+  canvas { width: 100%; border-radius: 8px; display: block; }
+
+  /* Status badge */
+  .status-badge {
+    position: absolute;
+    top: 28px;
+    right: 28px;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.5px;
+    transition: all 0.3s;
+  }
+  .badge-two   { background: #1e3a5f; color: #60a5fa; border: 1px solid #3b82f6; }
+  .badge-one   { background: #1a3a2a; color: #4ade80; border: 1px solid #22c55e; }
+  .badge-zero  { background: #3b1c1c; color: #f87171; border: 1px solid #ef4444; }
+
+  /* Controls panel */
+  .controls {
+    flex: 0 0 300px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .controls h2 { font-size: 1.1rem; color: #a78bfa; margin-bottom: 4px; }
+
+  .slider-group { display: flex; flex-direction: column; gap: 6px; }
+  .slider-group label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .slider-group label span:first-child { color: #94a3b8; }
+  .slider-group label .val { font-family: 'SF Mono', 'Consolas', monospace; }
+
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: #334155;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid #0f172a;
+  }
+  #sliderAngle::-webkit-slider-thumb { background: #fbbf24; }
+  #sliderB::-webkit-slider-thumb { background: #a78bfa; }
+  #sliderA::-webkit-slider-thumb { background: #60a5fa; }
+
+  /* Info box */
+  .info-box {
+    background: #0f172a;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    border-left: 3px solid #334155;
+    transition: border-color 0.3s;
+  }
+  .info-box.ib-two  { border-left-color: #3b82f6; }
+  .info-box.ib-one  { border-left-color: #22c55e; }
+  .info-box.ib-zero { border-left-color: #ef4444; }
+
+  .info-box .math-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+  }
+  .info-box .math-label { color: #64748b; }
+  .info-box .math-val { color: #e2e8f0; font-family: 'SF Mono', 'Consolas', monospace; font-size: 0.85rem; }
+
+  .preset-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .preset-btn {
+    flex: 1;
+    padding: 8px 6px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+    background: #0f172a;
+    color: #e2e8f0;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .preset-btn:hover { border-color: #60a5fa; background: #1e293b; }
+  .preset-btn.active { border-color: #60a5fa; background: #1e3a5f; color: #60a5fa; }
+
+  .explanation-text {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: #cbd5e1;
+    padding: 10px 0 0;
+  }
+  .explanation-text strong { color: #e2e8f0; }
+
+  /* Formula bar */
+  .formula-bar {
+    background: #0f172a;
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+    font-size: 0.95rem;
+    margin-bottom: 4px;
+  }
+  .formula-bar span { font-weight: 600; }
+  .fc-a { color: #60a5fa; }
+  .fc-b { color: #a78bfa; }
+  .fc-ang { color: #fbbf24; }
+</style>
+</head>
+<body>
+
+<h1>The Ambiguous Case of the Sine Law</h1>
+<p class="subtitle">Drag the sliders to explore when SSA gives 0, 1, or 2 triangles</p>
+
+<div class="main-layout">
+
+  <div class="canvas-wrap">
+    <canvas id="canvas" width="700" height="480"></canvas>
+    <div class="status-badge badge-two" id="badge">2 TRIANGLES</div>
+  </div>
+
+  <div class="controls">
+    <div class="formula-bar">
+      <span class="fc-a">a</span> / sin <span class="fc-ang">A</span> = <span class="fc-b">b</span> / sin <span>B</span>
+    </div>
+
+    <div>
+      <h2>Adjust Values</h2>
+    </div>
+
+    <div class="slider-group">
+      <label><span>Angle <span style="color:#fbbf24">A</span></span> <span class="val" id="valAngle" style="color:#fbbf24">40°</span></label>
+      <input type="range" id="sliderAngle" min="5" max="85" value="40" step="1">
+    </div>
+
+    <div class="slider-group">
+      <label><span>Side <span style="color:#a78bfa">b</span> (adjacent)</span> <span class="val" id="valB" style="color:#a78bfa">200</span></label>
+      <input type="range" id="sliderB" min="60" max="300" value="200" step="1">
+    </div>
+
+    <div class="slider-group">
+      <label><span>Side <span style="color:#60a5fa">a</span> (opposite)</span> <span class="val" id="valA" style="color:#60a5fa">150</span></label>
+      <input type="range" id="sliderA" min="20" max="350" value="150" step="1">
+    </div>
+
+    <div>
+      <h2>Presets</h2>
+      <div class="preset-buttons">
+        <button class="preset-btn" onclick="setPreset(40,200,150)">2 Triangles</button>
+        <button class="preset-btn" onclick="setPreset(40,200,129)">1 (Right △)</button>
+        <button class="preset-btn" onclick="setPreset(35,200,240)">1 (a ≥ b)</button>
+        <button class="preset-btn" onclick="setPreset(50,200,90)">0 Triangles</button>
+      </div>
+    </div>
+
+    <div class="info-box" id="infoBox">
+      <!-- filled by JS -->
+    </div>
+
+    <div class="explanation-text" id="explainText"></div>
+  </div>
+
+</div>
+
+<script>
+const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const badge = document.getElementById('badge');
+const infoBox = document.getElementById('infoBox');
+const explainText = document.getElementById('explainText');
+
+const sliderAngle = document.getElementById('sliderAngle');
+const sliderB = document.getElementById('sliderB');
+const sliderA = document.getElementById('sliderA');
+const valAngle = document.getElementById('valAngle');
+const valB = document.getElementById('valB');
+const valA = document.getElementById('valA');
+
+let animT = 0;
+let prevCase = '';
+
+function setPreset(angle, b, a) {
+  sliderAngle.value = angle;
+  sliderB.value = b;
+  sliderA.value = a;
+  update();
+}
+
+function toRad(deg) { return deg * Math.PI / 180; }
+function toDeg(rad) { return rad * 180 / Math.PI; }
+
+function update() {
+  const A_deg = +sliderAngle.value;
+  const b = +sliderB.value;
+  const a = +sliderA.value;
+  const A = toRad(A_deg);
+
+  valAngle.textContent = A_deg + '°';
+  valB.textContent = b;
+  valA.textContent = a;
+
+  const h = b * Math.sin(A);
+  const scale = 1.0;
+
+  // Determine case
+  let caseType, caseLabel;
+  if (a < h - 0.5) {
+    caseType = 'zero';
+    caseLabel = '0 TRIANGLES';
+  } else if (Math.abs(a - h) < 1) {
+    caseType = 'one-right';
+    caseLabel = '1 TRIANGLE (right)';
+  } else if (a >= b - 0.5) {
+    caseType = 'one-big';
+    caseLabel = '1 TRIANGLE';
+  } else {
+    caseType = 'two';
+    caseLabel = '2 TRIANGLES';
+  }
+
+  // Badge
+  badge.textContent = caseLabel;
+  badge.className = 'status-badge ' +
+    (caseType === 'two' ? 'badge-two' : caseType === 'zero' ? 'badge-zero' : 'badge-one');
+
+  // Info box
+  const ibClass = caseType === 'two' ? 'ib-two' : caseType === 'zero' ? 'ib-zero' : 'ib-one';
+  infoBox.className = 'info-box ' + ibClass;
+  infoBox.innerHTML = `
+    <div class="math-row"><span class="math-label">h = b sin A</span><span class="math-val">${h.toFixed(1)}</span></div>
+    <div class="math-row"><span class="math-label">Side a</span><span class="math-val">${a}</span></div>
+    <div class="math-row"><span class="math-label">Side b</span><span class="math-val">${b}</span></div>
+    <div class="math-row"><span class="math-label">Condition</span><span class="math-val">${
+      caseType === 'zero' ? 'a < h → no triangle' :
+      caseType === 'one-right' ? 'a = h → right triangle' :
+      caseType === 'one-big' ? 'a ≥ b → one triangle' :
+      'h < a < b → two triangles'
+    }</span></div>
+  `;
+
+  // Explanation
+  const explanations = {
+    'zero': `Side <strong style="color:#60a5fa">a = ${a}</strong> is shorter than the height <strong>h = ${h.toFixed(1)}</strong>. The "compass" arc from vertex C can't reach the base line — no triangle can be formed.`,
+    'one-right': `Side <strong style="color:#60a5fa">a ≈ h = ${h.toFixed(1)}</strong>. The arc from C is tangent to the base, producing exactly <strong>one right triangle</strong>.`,
+    'one-big': `Side <strong style="color:#60a5fa">a = ${a}</strong> ≥ <strong style="color:#a78bfa">b = ${b}</strong>. The arc from C can only cross the base on one side of the height, giving <strong>one unique triangle</strong>.`,
+    'two': `Since <strong>h = ${h.toFixed(1)}</strong> < <strong style="color:#60a5fa">a = ${a}</strong> < <strong style="color:#a78bfa">b = ${b}</strong>, the arc crosses the base in <strong>two places</strong>, creating two valid triangles with supplementary angles B₁ and B₂.`
+  };
+  explainText.innerHTML = explanations[caseType];
+
+  draw(A, a, b, h, caseType);
+}
+
+function draw(A, a, b, h, caseType) {
+  const W = canvas.width;
+  const H = canvas.height;
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(0, 0, W, H);
+
+  // Coordinate system: vertex A at bottom-left area
+  const originX = 80;
+  const originY = H - 60;
+  const sc = Math.min(1.4, 320 / Math.max(a, b)); // scale to fit
+
+  const Ax = originX;
+  const Ay = originY;
+
+  // Vertex C (top of side b, along angle A direction)
+  const Cx = Ax + b * sc * Math.cos(A);
+  const Cy = Ay - b * sc * Math.sin(A);
+
+  // Foot of height from C to base
+  const Fx = Cx;
+  const Fy = Ay;
+
+  // Base line (extended)
+  ctx.strokeStyle = '#334155';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  ctx.moveTo(20, Ay);
+  ctx.lineTo(W - 20, Ay);
+  ctx.stroke();
+
+  // Draw grid dots for reference
+  ctx.fillStyle = '#1e293b';
+  for (let gx = 40; gx < W; gx += 40) {
+    for (let gy = 40; gy < H - 40; gy += 40) {
+      ctx.beginPath();
+      ctx.arc(gx, gy, 1, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Height dashed line (h = b sin A)
+  ctx.strokeStyle = '#475569';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([5, 4]);
+  ctx.beginPath();
+  ctx.moveTo(Cx, Cy);
+  ctx.lineTo(Fx, Fy);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // h label
+  ctx.fillStyle = '#64748b';
+  ctx.font = '12px system-ui';
+  ctx.textAlign = 'left';
+  ctx.fillText('h = ' + (h).toFixed(1), Fx + 6, (Cy + Fy) / 2);
+
+  // Draw the compass arc (circle from C with radius a)
+  const arcRadius = a * sc;
+  ctx.strokeStyle = caseType === 'zero' ? 'rgba(248,113,113,0.25)' :
+                    caseType === 'two' ? 'rgba(96,165,250,0.2)' : 'rgba(74,222,128,0.2)';
+  ctx.lineWidth = 1.5;
+  ctx.setLineDash([4, 5]);
+  ctx.beginPath();
+  ctx.arc(Cx, Cy, arcRadius, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Small label on arc
+  const arcLabelAngle = -Math.PI * 0.15;
+  ctx.fillStyle = '#64748b';
+  ctx.font = '11px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText('radius = a', Cx + arcRadius * Math.cos(arcLabelAngle), Cy + arcRadius * Math.sin(arcLabelAngle) - 8);
+
+  // Draw side b (A to C)
+  ctx.strokeStyle = '#a78bfa';
+  ctx.lineWidth = 3;
+  ctx.setLineDash([]);
+  ctx.beginPath();
+  ctx.moveTo(Ax, Ay);
+  ctx.lineTo(Cx, Cy);
+  ctx.stroke();
+
+  // b label
+  const bMidX = (Ax + Cx) / 2 - 16;
+  const bMidY = (Ay + Cy) / 2;
+  ctx.fillStyle = '#a78bfa';
+  ctx.font = 'bold 16px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText('b', bMidX, bMidY);
+
+  // Angle arc at A
+  ctx.strokeStyle = '#fbbf24';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(Ax, Ay, 30, -A, 0);
+  ctx.stroke();
+  ctx.fillStyle = '#fbbf24';
+  ctx.font = 'bold 14px system-ui';
+  ctx.textAlign = 'left';
+  ctx.fillText('A', Ax + 34, Ay - 8);
+
+  // Compute intersection points of circle(C, a*sc) with base line y = Ay
+  // (x - Cx)^2 + (Ay - Cy)^2 = (a*sc)^2
+  const dy = Ay - Cy;
+  const disc = arcRadius * arcRadius - dy * dy;
+
+  if (caseType === 'zero') {
+    // Draw side a dangling
+    const endY = Cy + arcRadius;
+    ctx.strokeStyle = '#f87171';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(Cx, Cy);
+    ctx.lineTo(Cx, endY);
+    ctx.stroke();
+
+    // a label
+    ctx.fillStyle = '#f87171';
+    ctx.font = 'bold 16px system-ui';
+    ctx.textAlign = 'left';
+    ctx.fillText('a', Cx + 8, (Cy + endY) / 2);
+
+    // Gap indicator
+    ctx.strokeStyle = '#f87171';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(Cx, endY);
+    ctx.lineTo(Cx, Ay);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // gap label
+    ctx.fillStyle = '#f87171';
+    ctx.font = '12px system-ui';
+    ctx.fillText('gap', Cx + 8, (endY + Ay) / 2 + 4);
+
+    // X mark
+    const xc = Cx, yc = (endY + Ay) / 2;
+    ctx.strokeStyle = '#f87171';
+    ctx.lineWidth = 3;
+    ctx.beginPath(); ctx.moveTo(xc - 10, yc - 10); ctx.lineTo(xc + 10, yc + 10); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(xc + 10, yc - 10); ctx.lineTo(xc - 10, yc + 10); ctx.stroke();
+
+    // endpoint
+    drawDot(Cx, endY, '#f87171', 5);
+
+  } else if (disc >= 0) {
+    const sqrtDisc = Math.sqrt(Math.max(0, disc));
+    const B1x = Cx + sqrtDisc;
+    const B2x = Cx - sqrtDisc;
+
+    // Determine which are valid (must be to the right of A on the base, roughly)
+    // For the ambiguous case, both B1 (right) and B2 (left) may be valid
+    const validB1 = B1x > Ax + 5;
+    const validB2 = B2x > Ax + 5;
+
+    if (caseType === 'two' && validB1 && validB2) {
+      // Triangle 1 (solid)
+      ctx.strokeStyle = '#60a5fa';
+      ctx.lineWidth = 3;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(Cx, Cy);
+      ctx.lineTo(B1x, Ay);
+      ctx.stroke();
+
+      // Base of triangle 1
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(Ax, Ay);
+      ctx.lineTo(B1x, Ay);
+      ctx.stroke();
+
+      // Fill triangle 1
+      ctx.fillStyle = 'rgba(96,165,250,0.07)';
+      ctx.beginPath();
+      ctx.moveTo(Ax, Ay); ctx.lineTo(Cx, Cy); ctx.lineTo(B1x, Ay); ctx.closePath();
+      ctx.fill();
+
+      // a label
+      ctx.fillStyle = '#60a5fa';
+      ctx.font = 'bold 16px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText('a', (Cx + B1x) / 2 + 12, (Cy + Ay) / 2);
+
+      // Triangle 2 (dashed)
+      ctx.strokeStyle = '#60a5fa';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([7, 5]);
+      ctx.beginPath();
+      ctx.moveTo(Cx, Cy);
+      ctx.lineTo(B2x, Ay);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Base of triangle 2
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([5, 4]);
+      ctx.beginPath();
+      ctx.moveTo(Ax, Ay);
+      ctx.lineTo(B2x, Ay);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Fill triangle 2
+      ctx.fillStyle = 'rgba(96,165,250,0.04)';
+      ctx.beginPath();
+      ctx.moveTo(Ax, Ay); ctx.lineTo(Cx, Cy); ctx.lineTo(B2x, Ay); ctx.closePath();
+      ctx.fill();
+
+      // a' label
+      ctx.fillStyle = 'rgba(96,165,250,0.7)';
+      ctx.font = 'bold 14px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText("a'", (Cx + B2x) / 2 - 10, (Cy + Ay) / 2 - 5);
+
+      // Angle annotations
+      // B1
+      ctx.fillStyle = '#60a5fa';
+      ctx.font = 'bold 13px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText('B₁', B1x, Ay + 20);
+
+      // compute angle B1
+      const sinB1 = b * Math.sin(A) / a;
+      if (Math.abs(sinB1) <= 1) {
+        const B1_deg = toDeg(Math.asin(sinB1));
+        ctx.font = '11px system-ui';
+        ctx.fillText(B1_deg.toFixed(1) + '°', B1x, Ay + 34);
+
+        // B2
+        ctx.fillStyle = 'rgba(96,165,250,0.7)';
+        ctx.font = 'bold 13px system-ui';
+        ctx.fillText('B₂', B2x, Ay + 20);
+        ctx.font = '11px system-ui';
+        ctx.fillText((180 - B1_deg).toFixed(1) + '°', B2x, Ay + 34);
+      }
+
+      drawDot(B1x, Ay, '#60a5fa', 5);
+      drawDot(B2x, Ay, '#60a5fa', 4);
+
+    } else {
+      // One triangle
+      const Bx = validB1 ? B1x : B2x;
+      const color = '#4ade80';
+
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(Cx, Cy);
+      ctx.lineTo(Bx, Ay);
+      ctx.stroke();
+
+      // Base
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(Ax, Ay);
+      ctx.lineTo(Bx, Ay);
+      ctx.stroke();
+
+      // Fill triangle
+      ctx.fillStyle = 'rgba(74,222,128,0.07)';
+      ctx.beginPath();
+      ctx.moveTo(Ax, Ay); ctx.lineTo(Cx, Cy); ctx.lineTo(Bx, Ay); ctx.closePath();
+      ctx.fill();
+
+      // a label
+      ctx.fillStyle = color;
+      ctx.font = 'bold 16px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText('a', (Cx + Bx) / 2 + 10, (Cy + Ay) / 2);
+
+      // Right angle marker if applicable
+      if (caseType === 'one-right') {
+        const sz = 12;
+        const rx = Fx, ry = Fy;
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(rx, ry - sz);
+        ctx.lineTo(rx + sz, ry - sz);
+        ctx.lineTo(rx + sz, ry);
+        ctx.stroke();
+      }
+
+      // B label
+      ctx.fillStyle = color;
+      ctx.font = 'bold 13px system-ui';
+      ctx.textAlign = 'center';
+      ctx.fillText('B', Bx, Ay + 20);
+
+      const sinB = b * Math.sin(A) / a;
+      if (Math.abs(sinB) <= 1) {
+        const B_deg = toDeg(Math.asin(Math.min(1, sinB)));
+        ctx.font = '11px system-ui';
+        ctx.fillText(B_deg.toFixed(1) + '°', Bx, Ay + 34);
+      }
+
+      drawDot(Bx, Ay, color, 5);
+    }
+  }
+
+  // Vertex dots
+  drawDot(Ax, Ay, '#fbbf24', 6);
+  drawDot(Cx, Cy, '#a78bfa', 6);
+
+  // Vertex labels
+  ctx.fillStyle = '#fbbf24';
+  ctx.font = 'bold 14px system-ui';
+  ctx.textAlign = 'center';
+  ctx.fillText('A', Ax, Ay + 22);
+
+  ctx.fillStyle = '#a78bfa';
+  ctx.fillText('C', Cx - 2, Cy - 14);
+
+  // Legend in top-left
+  drawLegend();
+}
+
+function drawDot(x, y, color, r) {
+  ctx.beginPath();
+  ctx.arc(x, y, r, 0, Math.PI * 2);
+  ctx.fillStyle = color;
+  ctx.fill();
+  ctx.strokeStyle = '#0f172a';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+function drawLegend() {
+  const x = 20, y = 20;
+  ctx.fillStyle = 'rgba(15,23,42,0.85)';
+  ctx.strokeStyle = '#334155';
+  ctx.lineWidth = 1;
+  roundRect(x, y, 155, 84, 8);
+
+  ctx.font = '11px system-ui';
+  ctx.textAlign = 'left';
+
+  // side b
+  ctx.strokeStyle = '#a78bfa'; ctx.lineWidth = 3; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(x + 10, y + 18); ctx.lineTo(x + 35, y + 18); ctx.stroke();
+  ctx.fillStyle = '#a78bfa'; ctx.fillText('Side b (adjacent)', x + 42, y + 22);
+
+  // side a
+  ctx.strokeStyle = '#60a5fa'; ctx.lineWidth = 3;
+  ctx.beginPath(); ctx.moveTo(x + 10, y + 38); ctx.lineTo(x + 35, y + 38); ctx.stroke();
+  ctx.fillStyle = '#60a5fa'; ctx.fillText('Side a (opposite)', x + 42, y + 42);
+
+  // compass arc
+  ctx.strokeStyle = '#475569'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 5]);
+  ctx.beginPath(); ctx.moveTo(x + 10, y + 58); ctx.lineTo(x + 35, y + 58); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#64748b'; ctx.fillText('Compass arc (r = a)', x + 42, y + 62);
+
+  // height
+  ctx.strokeStyle = '#475569'; ctx.lineWidth = 1; ctx.setLineDash([5, 4]);
+  ctx.beginPath(); ctx.moveTo(x + 10, y + 76); ctx.lineTo(x + 35, y + 76); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#64748b'; ctx.fillText('Height h = b sin A', x + 42, y + 80);
+}
+
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+}
+
+// Events
+sliderAngle.addEventListener('input', update);
+sliderB.addEventListener('input', update);
+sliderA.addEventListener('input', update);
+
+// Initial draw
+update();
+</script>
+
+</body>
+</html>
