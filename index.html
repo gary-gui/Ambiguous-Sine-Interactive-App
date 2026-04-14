@@ -74,7 +74,7 @@
     flex-direction: column;
     gap: 20px;
   }
-  .controls h2 { font-size: 1.1rem; color: #a78bfa; margin-bottom: 10px; }
+  .controls h2 { font-size: 1.1rem; color: #a78bfa; margin-bottom: 4px; }
 
   .slider-group { display: flex; flex-direction: column; gap: 6px; }
   .slider-group label {
@@ -139,12 +139,12 @@
     border: 1px solid #334155;
     background: #0f172a;
     color: #e2e8f0;
-    font-size: 0.78rem;
+    font-size: 0.82rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
     text-align: center;
-    line-height: 1.4;
+    white-space: nowrap;
   }
   .preset-btn:hover { border-color: #60a5fa; background: #1e293b; }
   .preset-btn.active { border-color: #60a5fa; background: #1e3a5f; color: #60a5fa; }
@@ -212,8 +212,8 @@
       <h2>Presets</h2>
       <div class="preset-buttons">
         <button class="preset-btn" onclick="setPreset(40,200,150)">2 Triangles</button>
-        <button class="preset-btn" onclick="setPreset(40,200,129)">1<br>Right Triangle</button>
-        <button class="preset-btn" onclick="setPreset(35,200,240)">1<br>(a ≥ b)</button>
+        <button class="preset-btn" onclick="setPreset(40,200,129)">1 (Right △)</button>
+        <button class="preset-btn" onclick="setPreset(35,200,240)">1 (a ≥ b)</button>
         <button class="preset-btn" onclick="setPreset(50,200,90)">0 Triangles</button>
       </div>
     </div>
